@@ -23,22 +23,10 @@ const io = socket(server)
 
 io.on('connection', function(socket)  {
     console.log("New user was connected")
-
-    socket.on('createdMessage', (message) => {
-        io.emit('newMessage', {
-            modelDisplayName: message.modelDisplayName,
-            modelName: message.modelName,
-            classification: message.classification,
-            classProbability: message.classProbability,
-            classIndex: message.classIndex,
-            state: message.state,
-            icon: message.icon,
-            createdAt: new Date().getTime()
-        })
-    })
-  
+      
     socket.on('createMessage', (message) => {
         maschine.create(message)
+        io.emit('sendMessage',message)
         console.log("createdMessage", message)
     })
 
