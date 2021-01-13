@@ -1,4 +1,4 @@
-const { request } = require('express');
+const { response } = require('express');
 const connection = require('./db_config')
 
 let maschine = {} 
@@ -9,6 +9,13 @@ maschine.findAll = function(result){
         if(err) throw err;
         return  result(res);
       });
+}
+
+maschine.findOne = function(result,id){
+    connection.query("SELECT * FROM maschine WHERE modelName = ?", [id], function(error,response){
+        if(error) throw error;
+        return result(response)
+    })
 }
 
 maschine.create = function(maschineObject){
