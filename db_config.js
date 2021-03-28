@@ -1,15 +1,16 @@
 const mysql = require('mysql')
 
 const connection = mysql.createConnection({
-    host: "db4free.net",
-    user: "akram_dbeiri",
-    password: "akram_1996",
-    database : 'maschine_health'
+    host: "localhost",
+    user: "Akrem",
+    password: "Akrem081920",
+    database : 'maschinen',
+    port: "3306"
   });
 
   connection.connect(function(err) {
     if(err) throw err;
-     console.log("Connected!");
+     console.log("DB Connected!");
   });
 
   module.exports = connection

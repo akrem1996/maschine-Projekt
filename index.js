@@ -1,31 +1,54 @@
 const express = require('express')
-const socket = require("socket.io")
+const socketio = require("socket.io")
+const cors = require('cors');
+
+
 const maschine = require('./maschine.model')
 const connection = require('./db_config')
 
 //App setup
 const app = express()
 const PORT = 8000
+
+app.use(cors());
+
 const server = app.listen(PORT,function(){
     console.log(`Listening on port ${PORT}`);
-    console.log(`http://localhost:${PORT}`);
 })
 
+const io = socketio(server, {
+    cors: {
+      origin: true,
+    },
+  });
+   
+
 app.get('/', function(req,res){
-    res.sendFile(__dirname + '/index.html')
+   
+        res.sendFile(__dirname + '/index.html')
+    
 })
 
 //static files
 app.use(express.static("public"))
 
-//socket setup
-const io = socket(server)
-
 io.on('connection', function(socket)  {
     console.log("New user was connected")
       
     socket.on('createMessage', (message) => {
-        maschine.create(message)
+        maschine.findOne(message.modelDisplayName ,function(result){
+            if(result){
+                maschine.stateUpdate({id: message.modelDisplayName , state: message.state , date: new Date()})
+            } else {
+            
+            maschine.create({ modelDisplayName: message.modelDisplayName ,
+                modelName: message.modelName,
+                classification: message.classification,
+                classProbability: message.classProbability,
+                classIndex: message.classIndex,
+                icon: message.icon})
+            maschine.stateUpdate({id: message.modelDisplayName , state: message.state , date: new Date()})
+        }})
         io.emit('sendMessage',message)
         console.log("createdMessage", message)
     })
@@ -38,27 +61,15 @@ io.on('connection', function(socket)  {
 
 //Get all maschines
 app.get('/maschine',(request,response) => {
+   
     maschine.findAll( function(results){
-        console.log(results)
-        response.send(results)
+        response.json(results)
     });
 })
 
-//Get one maschine
-app.get('/maschine/:modelName',(request, response) => {
-    const id = request.params.modelName
-    maschine.findOne(function(results){
-       console.log(results)
-       response.send(results)
-   },id)
-})
 
-//Update maschine
-app.put('/maschine',(request, response) => {
-    connection.query("UPDATE maschine SET state = ? WHERE modelName = ?" , ["Tunisia", "Aki"], function(error, results){
-        if(error) throw error;
-        response.send(results)
-    })
-})
+
+  
+
 
 
