@@ -4,13 +4,12 @@ const connection = require('./db_config')
 let maschine = {} 
 
 maschine.findAll = function(result){
-    const sqlSelect = "SELECT * FROM maschine;"
-    connection.query(sqlSelect, function (err, res) {
+    
+    connection.query( "SELECT * FROM maschine JOIN ( SELECT * FROM maschinestate WHERE date IN ( SELECT MAX(date) FROM maschinestate GROUP BY id ) ) S ON maschine.modelDisplayName = S.id ",  function (err, res) {
         if(err) throw err;
         return  result(res);
       });
 }
-
 
 maschine.findOne = function(id,result){
     connection.query("SELECT * FROM maschine WHERE modelName = ?", [id], function(error,response){
@@ -34,12 +33,12 @@ maschine.stateUpdate = function(stateObject){
 }
 
 
-maschine.update = function(id,state){
+/*maschine.update = function(id,state){
     connection.query("UPDATE maschine SET state = ? WHERE modelName = ?" , [state, id], function(error, results){
         if(error) throw error;
         response.send(results)
     })
-}
+}*/
 
 
 module.exports = maschine;
