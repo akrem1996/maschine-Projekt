@@ -17,12 +17,4 @@ user.findUser = function(name , password, result){
     })
 }
 
-/*user.findAllUsers = function(result){
-    const sqlSelect = "SELECT * FROM user;"
-    connection.query(sqlSelect, function (err, res) {
-        if(err) throw err;
-        return  result(res);
-      });
-}*/
-
 module.exports = user;

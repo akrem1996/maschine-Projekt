@@ -2,11 +2,9 @@ const express = require('express')
 const socketio = require("socket.io")
 const cors = require('cors');
 const bodyParser = require('body-parser')
-const bcrypt= require("bcrypt")
 const jwt = require('jsonwebtoken');
 
 
-const maschine = require('./maschine.model')
 const user = require('./use.model');
 
 const accessTokenSecret = require('./config')
@@ -29,7 +27,7 @@ const io = socketio(server, {
     cors: {
       origin: true,
     },
-  });
+});
    
 
 app.get('/', function(req,res){
@@ -43,18 +41,6 @@ io.on('connection', function(socket)  {
     console.log("New user was connected")
       
     socket.on('createMessage', (message) => {
-        maschine.findOne(message.modelDisplayName ,function(result){
-            if(result.length > 0){
-                maschine.stateUpdate({id: message.modelDisplayName , state: message.state , date: new Date()})
-            } else {
-            maschine.create({ modelDisplayName: message.modelDisplayName ,
-                modelName: message.modelName,
-                classification: message.classification,
-                classProbability: message.classProbability,
-                classIndex: message.classIndex,
-                icon: message.icon})
-            maschine.stateUpdate({id: message.modelDisplayName , state: message.state , date: new Date()})
-        }})
         io.emit('sendMessage',message)
         console.log("createdMessage", message)
     })
@@ -64,20 +50,13 @@ io.on('connection', function(socket)  {
     })
 })
 
-//Get all maschines
-app.get('/maschine',authenticate,(request,response) => {
-    maschine.findAll( function(results){
-        response.json(results)
-    });
-})
-
 //Sign up User
 app.post('/subscribe' ,(request,response) => {
     user.addUser(request.body)
 })
 
 //Get users
-app.get('/user',authenticate,(request,response) => {
+app.get('/user',(request,response) => {
     user.findUser( request.body.name, request.body.password, function(results){
         response.json(results)
     });
